@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>자주 틀리는 맞춤법 퀴즈</title>
+<title>국어 맞춤법·한자성어 퀴즈</title>
 <style>
   :root {
     --bg: #f4f6fb;
@@ -44,66 +44,29 @@
     line-height: 1.6;
     -webkit-text-size-adjust: 100%;
   }
-  .wrap {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 24px 16px 60px;
-  }
-  h1 {
-    font-size: 1.5rem;
-    margin: 8px 0 4px;
-    letter-spacing: -0.02em;
-  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; }
+  h1 { font-size: 1.5rem; margin: 8px 0 4px; letter-spacing: -0.02em; }
   .sub { color: var(--muted); font-size: 0.95rem; margin-bottom: 22px; }
-  .card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 18px;
-    padding: 24px;
-    box-shadow: var(--shadow);
-  }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 24px; box-shadow: var(--shadow); }
 
-  /* 시작 화면 */
   .field { margin-bottom: 22px; }
   .field > label { display: block; font-weight: 700; margin-bottom: 10px; }
   .chips { display: flex; flex-wrap: wrap; gap: 10px; }
-  .chip {
-    border: 1px solid var(--line);
-    background: transparent;
-    color: var(--text);
-    border-radius: 999px;
-    padding: 10px 18px;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: 0.15s;
-  }
+  .chip { border: 1px solid var(--line); background: transparent; color: var(--text); border-radius: 999px; padding: 10px 18px; font-size: 0.95rem; cursor: pointer; transition: 0.15s; }
   .chip:hover { border-color: var(--accent); }
-  .chip.on {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-    font-weight: 700;
-  }
-  .btn {
-    width: 100%;
-    border: none;
-    border-radius: 14px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 1.05rem;
-    font-weight: 700;
-    padding: 15px;
-    cursor: pointer;
-    transition: 0.15s;
-  }
-  .btn:hover { filter: brightness(1.05); }
-  .btn.ghost {
-    background: transparent;
-    color: var(--accent);
-    border: 1px solid var(--line);
-  }
+  .chip.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
 
-  /* 진행 바 */
+  .btn { width: 100%; border: none; border-radius: 14px; background: var(--accent); color: #fff; font-size: 1.05rem; font-weight: 700; padding: 15px; cursor: pointer; transition: 0.15s; }
+  .btn:hover { filter: brightness(1.05); }
+  .btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--line); }
+
+  /* 메뉴 */
+  .menu-btns { display: grid; gap: 14px; }
+  .menu-btn { text-align: left; border: 1px solid var(--line); background: var(--card); color: var(--text); border-radius: 16px; padding: 20px 22px; cursor: pointer; transition: 0.15s; }
+  .menu-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .menu-btn .mt { font-size: 1.2rem; font-weight: 800; }
+  .menu-btn .md { color: var(--muted); font-size: 0.92rem; margin-top: 4px; }
+
   .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .topbar .count { font-size: 0.9rem; color: var(--muted); }
   .topbar .score { font-size: 0.9rem; font-weight: 700; }
@@ -112,59 +75,40 @@
 
   .qnum { color: var(--muted); font-size: 0.85rem; margin-bottom: 8px; }
   .prompt { font-size: 1.3rem; font-weight: 700; margin-bottom: 22px; letter-spacing: -0.01em; }
-  .blank {
-    display: inline-block;
-    min-width: 54px;
-    border-bottom: 3px solid var(--accent);
-    margin: 0 2px;
-    vertical-align: bottom;
-  }
+  .clue { font-size: 1.15rem; font-weight: 600; margin-bottom: 22px; }
+  .blank { display: inline-block; min-width: 54px; border-bottom: 3px solid var(--accent); margin: 0 2px; vertical-align: bottom; }
 
   .options { display: grid; gap: 12px; }
-  .opt {
-    text-align: left;
-    border: 1.5px solid var(--line);
-    background: var(--card);
-    color: var(--text);
-    border-radius: 14px;
-    padding: 15px 18px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: 0.12s;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+  .opt { text-align: left; border: 1.5px solid var(--line); background: var(--card); color: var(--text); border-radius: 14px; padding: 15px 18px; font-size: 1.1rem; cursor: pointer; transition: 0.12s; display: flex; align-items: center; gap: 12px; }
   .opt:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
   .opt .mark { margin-left: auto; font-weight: 700; font-size: 0.9rem; }
   .opt.correct { border-color: var(--correct); background: var(--correct-soft); color: var(--correct); }
   .opt.wrong { border-color: var(--wrong); background: var(--wrong-soft); color: var(--wrong); }
   .opt:disabled { cursor: default; }
 
+  .input-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .answer-input { flex: 1; border: 1.5px solid var(--line); background: var(--card); color: var(--text); border-radius: 14px; padding: 15px 18px; font-size: 1.2rem; font-family: inherit; }
+  .answer-input:focus { outline: none; border-color: var(--accent); }
+  .answer-input:disabled { opacity: 0.7; }
+  .input-row .btn { width: auto; padding: 15px 22px; }
+
   .feedback { margin-top: 20px; }
   .verdict { font-weight: 700; margin-bottom: 6px; }
   .verdict.ok { color: var(--correct); }
   .verdict.no { color: var(--wrong); }
-  .note {
-    background: var(--accent-soft);
-    border-radius: 12px;
-    padding: 12px 14px;
-    font-size: 0.95rem;
-    color: var(--text);
-  }
+  .note { background: var(--accent-soft); border-radius: 12px; padding: 12px 14px; font-size: 0.95rem; color: var(--text); }
+  .reveal { background: var(--accent-soft); border-radius: 12px; padding: 14px 16px; }
+  .reveal .answer-big { font-size: 1.4rem; font-weight: 800; }
+  .reveal .hanja { color: var(--muted); font-weight: 500; font-size: 0.85em; margin-left: 6px; }
+  .reveal .means { font-size: 0.95rem; margin-top: 8px; }
+  .reveal .means div { margin-top: 3px; }
   .next { margin-top: 18px; }
 
-  /* 결과 화면 */
   .result-score { text-align: center; margin-bottom: 8px; }
   .result-score .big { font-size: 3rem; font-weight: 800; letter-spacing: -0.03em; }
   .result-score .pct { color: var(--muted); }
   .review-title { font-weight: 700; margin: 26px 0 12px; }
-  .review-item {
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-  }
+  .review-item { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
   .review-item .rq { font-weight: 700; margin-bottom: 8px; }
   .review-item .ra { font-size: 0.92rem; }
   .review-item .mine { color: var(--wrong); }
@@ -173,16 +117,34 @@
   .allright { text-align: center; color: var(--correct); font-weight: 700; margin: 26px 0; }
   .btn-row { display: flex; gap: 12px; margin-top: 24px; }
   .btn-row .btn { flex: 1; }
+  .backlink { display: inline-block; margin-top: 16px; color: var(--muted); font-size: 0.9rem; background: none; border: none; cursor: pointer; }
   .hidden { display: none; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>자주 틀리는 맞춤법 퀴즈</h1>
-  <p class="sub">운정고 1학년 국어 &lt;자주 틀리는 맞춤법&gt; 150문항으로 만든 연습 퀴즈</p>
+  <h1>국어 맞춤법·한자성어 퀴즈</h1>
+  <p class="sub">운정고 1학년 국어 수행 학습지로 만든 연습 퀴즈</p>
 
-  <!-- 시작 화면 -->
-  <section id="start" class="card">
+  <!-- 메뉴 -->
+  <section id="home" class="card">
+    <div class="menu-btns">
+      <button class="menu-btn" id="goSpelling">
+        <div class="mt">자주 틀리는 맞춤법</div>
+        <div class="md">150문항 · 보기 중 바른 표기 고르기</div>
+      </button>
+      <button class="menu-btn" id="goIdiom">
+        <div class="mt">기출 한자성어</div>
+        <div class="md">100문항 · 뜻 보고 네 글자 성어 직접 쓰기</div>
+      </button>
+    </div>
+  </section>
+
+  <!-- 설정 -->
+  <section id="start" class="card hidden">
+    <div class="field">
+      <label id="startTitle"></label>
+    </div>
     <div class="field">
       <label>몇 문제 풀까?</label>
       <div class="chips" id="countChips">
@@ -200,16 +162,16 @@
       </div>
     </div>
     <button class="btn" id="startBtn">시작하기</button>
+    <button class="backlink" id="startBack">← 메뉴로</button>
   </section>
 
-  <!-- 퀴즈 화면 -->
+  <!-- 맞춤법 퀴즈 -->
   <section id="quiz" class="hidden">
     <div class="topbar">
       <span class="count" id="counter"></span>
       <span class="score" id="runningScore"></span>
     </div>
     <div class="progress"><span id="progressBar"></span></div>
-
     <div class="card">
       <div class="qnum" id="qnum"></div>
       <div class="prompt" id="prompt"></div>
@@ -224,7 +186,32 @@
     </div>
   </section>
 
-  <!-- 결과 화면 -->
+  <!-- 한자성어 퀴즈 -->
+  <section id="idiom" class="hidden">
+    <div class="topbar">
+      <span class="count" id="iCounter"></span>
+      <span class="score" id="iScore"></span>
+    </div>
+    <div class="progress"><span id="iProgress"></span></div>
+    <div class="card">
+      <div class="qnum" id="iQnum"></div>
+      <div class="clue" id="iClue"></div>
+      <div class="input-row">
+        <input class="answer-input" id="iInput" type="text" placeholder="네 글자 성어 입력" autocomplete="off" maxlength="10">
+        <button class="btn" id="iSubmit">제출</button>
+      </div>
+      <button class="btn ghost" id="iSkip">모르겠어 (정답 보기)</button>
+      <div class="feedback hidden" id="iFeedback">
+        <div class="verdict" id="iVerdict"></div>
+        <div class="reveal" id="iReveal"></div>
+      </div>
+      <div class="next hidden" id="iNextWrap">
+        <button class="btn" id="iNextBtn">다음</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 결과 -->
   <section id="result" class="hidden">
     <div class="card">
       <div class="result-score">
@@ -234,14 +221,14 @@
       <div id="reviewArea"></div>
       <div class="btn-row">
         <button class="btn ghost" id="againBtn">다시 풀기</button>
-        <button class="btn" id="homeBtn">처음으로</button>
+        <button class="btn" id="homeBtn">메뉴로</button>
       </div>
     </div>
   </section>
 </div>
 
 <script>
-// 문제 목록. 한 줄에 한 문제. p는 문장(____ 자리가 빈칸), o는 보기, a는 정답(여러 개면 다 맞음), note는 설명.
+// 맞춤법 문제 목록. p는 문장(____ 자리가 빈칸), o는 보기, a는 정답(여러 개면 다 맞음), note는 설명.
 const QUESTIONS = [
   {n:"1", p:"병이 얼른 ____ 좋겠다.", o:["낳으면","나으면"], a:["나으면"], note:"'낫다(병이 낫다)'라서 '나으면'. '낳다'는 아이를 낳다."},
   {n:"2", p:"이 옷이 더 ____하지?", o:["문안","무난"], a:["무난"], note:""},
@@ -401,19 +388,128 @@ const QUESTIONS = [
   {n:"150", p:"바른 표기를 고르세요.", o:["리더쉽","리더십"], a:["리더십"], note:"외래어 표기는 '-십'."}
 ];
 
-// 화면 요소 모으기
+// 한자성어 목록. word는 네 글자 성어(정답), hanja는 한자, means는 뜻(여러 개면 그중 하나가 랜덤으로 나옴).
+const IDIOMS = [
+  {n:"1", word:"가렴주구", hanja:"苛斂誅求", means:["가혹하게 세금을 거두거나 백성의 재물을 억지로 빼앗음"]},
+  {n:"2", word:"각골통한", hanja:"刻骨痛恨", means:["뼈에 새겨 놓을 만큼 잊을 수 없고 고통스러운 원한"]},
+  {n:"3", word:"감언이설", hanja:"甘言利說", means:["귀가 솔깃하도록 비위를 맞추거나 이로운 조건을 내세워 꾀는 말","상대를 현혹시키려고 꾸민 달콤한 말"]},
+  {n:"4", word:"감탄고토", hanja:"甘吞苦吐", means:["달면 삼키고 쓰면 뱉는다는 뜻","제 비위에 맞으면 좋아하고 맞지 않으면 싫어함"]},
+  {n:"5", word:"갑론을박", hanja:"甲論乙駁", means:["서로 자기주장을 내세우며 상대의 주장을 반박함"]},
+  {n:"6", word:"고립무원", hanja:"孤立無援", means:["고립되어 도움을 받을 데가 없음"]},
+  {n:"7", word:"고진감래", hanja:"苦盡甘來", means:["쓴 것이 다하면 단 것이 온다는 뜻","고생 끝에 즐거움이 옴"]},
+  {n:"8", word:"괄목상대", hanja:"刮目相對", means:["눈을 비비고 상대를 다시 봄","남의 학식이나 재주가 놀랄 만큼 부쩍 향상됨"]},
+  {n:"9", word:"구사일생", hanja:"九死一生", means:["죽을 고비를 여러 차례 넘기고 겨우 살아남"]},
+  {n:"10", word:"구우일모", hanja:"九牛一毛", means:["아홉 마리 소 가운데 털 한 가닥","매우 많은 것 가운데 극히 적은 부분"]},
+  {n:"11", word:"견강부회", hanja:"牽強附會", means:["이치에 맞지 않는 말을 억지로 끌어다 자기 주장에 맞춤"]},
+  {n:"12", word:"결초보은", hanja:"結草報恩", means:["죽어서도 잊지 않고 은혜에 보답함"]},
+  {n:"13", word:"경거망동", hanja:"輕擧妄動", means:["가볍고 망령되게 함부로 행동함"]},
+  {n:"14", word:"권불십년", hanja:"權不十年", means:["아무리 막강한 권력도 오래가지 못하고 결국 무너짐"]},
+  {n:"15", word:"기사회생", hanja:"起死回生", means:["죽을 고비에서 벗어나 다시 살아남"]},
+  {n:"16", word:"기호지세", hanja:"騎虎之勢", means:["범에 올라탄 기세","이미 시작하여 도중에 그만둘 수 없는 형세"]},
+  {n:"17", word:"내우외환", hanja:"內憂外患", means:["나라 안팎의 여러 가지 근심과 걱정"]},
+  {n:"18", word:"노심초사", hanja:"勞心焦思", means:["몹시 마음을 쓰며 애를 태움"]},
+  {n:"19", word:"대경실색", hanja:"大驚失色", means:["크게 놀라 얼굴빛이 하얗게 질림"]},
+  {n:"20", word:"동문서답", hanja:"東問西答", means:["묻는 말에 전혀 엉뚱한 대답을 함"]},
+  {n:"21", word:"동병상련", hanja:"同病相憐", means:["어려운 처지에 있는 사람끼리 서로 가엾게 여기고 동정함"]},
+  {n:"22", word:"동분서주", hanja:"東奔西走", means:["이리저리 몹시 바쁘게 돌아다님"]},
+  {n:"23", word:"동상이몽", hanja:"同床異夢", means:["겉으로는 같이 행동하면서 속으로는 딴생각을 함"]},
+  {n:"24", word:"두문불출", hanja:"杜門不出", means:["집에만 박혀 바깥출입을 전혀 하지 않음"]},
+  {n:"25", word:"마이동풍", hanja:"馬耳東風", means:["남의 말을 조금도 귀담아듣지 않고 흘려버림"]},
+  {n:"26", word:"망양지탄", hanja:"亡羊之歎", means:["갈래가 많아 무엇을 택할지 몰라 어찌할 바를 모름"]},
+  {n:"27", word:"맥수지탄", hanja:"麥秀之嘆", means:["고국의 멸망을 안타까워함"]},
+  {n:"28", word:"무위도식", hanja:"無爲徒食", means:["하는 일 없이 헛되이 먹기만 함"]},
+  {n:"29", word:"면종복배", hanja:"面從腹背", means:["겉으로는 순종하는 체하고 속으로는 딴마음을 먹음"]},
+  {n:"30", word:"명재경각", hanja:"命在頃刻", means:["목숨이 곧 끊어질 만큼 위태로움"]},
+  {n:"31", word:"목불인견", hanja:"目不忍見", means:["차마 눈 뜨고 볼 수 없을 만큼 비참하거나 안타까움"]},
+  {n:"32", word:"반신반의", hanja:"半信半疑", means:["믿으면서도 한편으로는 의심함"]},
+  {n:"33", word:"방약무인", hanja:"傍若無人", means:["주위에 아무도 없는 것처럼 거리낌 없이 제멋대로 행동함"]},
+  {n:"34", word:"백년하청", hanja:"百年河淸", means:["아무리 오래 기다려도 바라는 일이 이루어질 수 없음"]},
+  {n:"35", word:"백척간두", hanja:"百尺竿頭", means:["몹시 위태롭고 어려운 지경"]},
+  {n:"36", word:"부화뇌동", hanja:"附和雷同", means:["자기 소신 없이 남이 하는 대로 덩달아 따라감"]},
+  {n:"37", word:"분기탱천", hanja:"憤氣撑天", means:["분한 마음이 하늘을 찌를 듯 북받쳐 오름"]},
+  {n:"38", word:"비분강개", hanja:"悲憤慷慨", means:["슬프고 분한 느낌이 마음에 가득 참"]},
+  {n:"39", word:"사고무친", hanja:"四顧無親", means:["사방을 둘러봐도 의지할 사람이 전혀 없음"]},
+  {n:"40", word:"사면초가", hanja:"四面楚歌", means:["사방이 적에게 포위되어 도움받을 데 없는 곤경"]},
+  {n:"41", word:"사필귀정", hanja:"事必歸正", means:["모든 일은 결국 반드시 바른길로 돌아감"]},
+  {n:"42", word:"삼고초려", hanja:"三顧草廬", means:["훌륭한 인물을 맞아들이려고 정성을 다함"]},
+  {n:"43", word:"삼십육계", hanja:"三十六計", means:["불리할 때는 도망쳐 몸을 보전하는 것이 상책임"]},
+  {n:"44", word:"상전벽해", hanja:"桑田碧海", means:["세상이 몰라볼 정도로 크게 바뀜"]},
+  {n:"45", word:"새옹지마", hanja:"塞翁之馬", means:["인생의 길흉화복은 늘 바뀌어 미리 헤아릴 수 없음"]},
+  {n:"46", word:"선견지명", hanja:"先見之明", means:["앞으로 닥칠 일을 남보다 먼저 아는 밝은 지혜"]},
+  {n:"47", word:"설상가상", hanja:"雪上加霜", means:["눈 위에 서리가 내림","어려운 일이 잇따라 겹침"]},
+  {n:"48", word:"설왕설래", hanja:"說往說來", means:["서로 의견이 맞지 않아 말로 옥신각신함"]},
+  {n:"49", word:"수구초심", hanja:"首丘初心", means:["고향이나 근본을 잊지 않음"]},
+  {n:"50", word:"수주대토", hanja:"守株待兔", means:["되지 않을 일을 고집하는 어리석음","노력 없이 뜻밖의 행운만 바람"]},
+  {n:"51", word:"순망치한", hanja:"脣亡齒寒", means:["서로 떨어질 수 없는 밀접한 관계"]},
+  {n:"52", word:"식자우환", hanja:"識字憂患", means:["너무 많이 알기 때문에 오히려 걱정이 생김"]},
+  {n:"53", word:"아전인수", hanja:"我田引水", means:["자기에게만 이롭게 되도록 생각하거나 행동함"]},
+  {n:"54", word:"안분지족", hanja:"安分知足", means:["자기 분수에 만족하며 다른 데 마음 두지 않음"]},
+  {n:"55", word:"안하무인", hanja:"眼下無人", means:["교만하여 남을 업신여김"]},
+  {n:"56", word:"어불성설", hanja:"語不成說", means:["말이 전혀 사리에 맞지 않음"]},
+  {n:"57", word:"연목구어", hanja:"緣木求魚", means:["목적과 수단이 맞지 않아 불가능한 일을 하려 함"]},
+  {n:"58", word:"오리무중", hanja:"五里霧中", means:["일의 방향이나 갈피를 전혀 잡을 수 없음"]},
+  {n:"59", word:"오매불망", hanja:"寤寐不忘", means:["자나 깨나 잊지 못함"]},
+  {n:"60", word:"오월동주", hanja:"吳越同舟", means:["서로 미워하면서도 공통의 어려움에는 협력함"]},
+  {n:"61", word:"온고지신", hanja:"溫故知新", means:["옛것을 익혀 그것을 미루어 새것을 앎"]},
+  {n:"62", word:"우후죽순", hanja:"雨後竹筍", means:["어떤 일이 한때에 많이 생겨남"]},
+  {n:"63", word:"유구무언", hanja:"有口無言", means:["잘못이 분명해 변명하거나 해명할 말이 없음"]},
+  {n:"64", word:"이심전심", hanja:"以心傳心", means:["말 없이 마음에서 마음으로 뜻이 통함"]},
+  {n:"65", word:"일거양득", hanja:"一擧兩得", means:["한 가지 일로 두 가지 이득을 봄"]},
+  {n:"66", word:"일벌백계", hanja:"一罰百戒", means:["한 사람을 벌하여 여러 사람에게 경계가 되게 함"]},
+  {n:"67", word:"일장춘몽", hanja:"一場春夢", means:["인생의 덧없음을 한바탕 봄꿈에 비유함"]},
+  {n:"68", word:"일진일퇴", hanja:"一進一退", means:["한 번 나아갔다 한 번 물러섬","좋아졌다 나빠졌다 함"]},
+  {n:"69", word:"일희일비", hanja:"一喜一悲", means:["기뻐했다 슬퍼했다 함","기쁨과 슬픔이 번갈아 일어남"]},
+  {n:"70", word:"자가당착", hanja:"自家撞着", means:["한 사람의 말과 행동이 앞뒤가 서로 맞지 않음"]},
+  {n:"71", word:"자승자박", hanja:"自繩自縛", means:["자기 언행 때문에 자신이 꼼짝 못 하게 됨"]},
+  {n:"72", word:"적반하장", hanja:"賊反荷杖", means:["잘못한 사람이 도리어 잘한 사람을 나무람"]},
+  {n:"73", word:"전인미답", hanja:"前人未踏", means:["지금까지 아무도 손대거나 발 디딘 적이 없음"]},
+  {n:"74", word:"전전긍긍", hanja:"戰戰兢兢", means:["위기감에 몹시 두려워 벌벌 떪"]},
+  {n:"75", word:"전전반측", hanja:"輾轉反側", means:["근심과 걱정으로 잠을 이루지 못함"]},
+  {n:"76", word:"전화위복", hanja:"轉禍爲福", means:["화가 바뀌어 오히려 복이 됨"]},
+  {n:"77", word:"절치부심", hanja:"切齒腐心", means:["몹시 분하여 이를 갈며 속을 썩임"]},
+  {n:"78", word:"점입가경", hanja:"漸入佳境", means:["갈수록 경치나 상황이 더 좋아지거나 흥미로워짐"]},
+  {n:"79", word:"조삼모사", hanja:"朝三暮四", means:["간사한 꾀로 남을 속여 희롱함"]},
+  {n:"80", word:"좌불안석", hanja:"坐不安席", means:["불안하여 한자리에 가만히 앉아 있지 못함"]},
+  {n:"81", word:"중구난방", hanja:"衆口難防", means:["여러 사람이 제각기 마구 떠들어 막기 어려움"]},
+  {n:"82", word:"진퇴양난", hanja:"進退兩難", means:["나아갈 수도 물러설 수도 없는 궁지에 빠짐"]},
+  {n:"83", word:"진퇴유곡", hanja:"進退維谷", means:["앞으로도 뒤로도 나아가거나 물러서지 못함"]},
+  {n:"84", word:"천우신조", hanja:"天佑神助", means:["하늘과 신령의 도움으로 어려움에서 벗어남"]},
+  {n:"85", word:"청천벽력", hanja:"靑天霹靂", means:["뜻밖에 일어난 돌발적인 사태나 변고"]},
+  {n:"86", word:"청출어람", hanja:"靑出於藍", means:["제자가 스승보다 나음"]},
+  {n:"87", word:"침소봉대", hanja:"針小棒大", means:["작은 일을 크게 부풀려 과장함"]},
+  {n:"88", word:"탁상공론", hanja:"卓上空論", means:["실현성 없는 헛된 이론이나 의논"]},
+  {n:"89", word:"토사구팽", hanja:"兔死狗烹", means:["쓸모가 있을 때 쓰다가 필요 없어지면 가차 없이 버림"]},
+  {n:"90", word:"풍수지탄", hanja:"風樹之嘆", means:["효도하려 할 때 부모가 이미 돌아가셔 못다 한 슬픔"]},
+  {n:"91", word:"표리부동", hanja:"表裏不同", means:["겉과 속이 다름"]},
+  {n:"92", word:"함구무언", hanja:"緘口無言", means:["입을 다물고 아무 말도 하지 않음"]},
+  {n:"93", word:"허장성세", hanja:"虛張聲勢", means:["실속 없이 허세만 부림"]},
+  {n:"94", word:"호가호위", hanja:"狐假虎威", means:["남의 세력을 빌려 위세를 부림"]},
+  {n:"95", word:"혼비백산", hanja:"魂飛魄散", means:["몹시 놀라 넋을 잃고 어쩔 줄 모름"]},
+  {n:"96", word:"화룡점정", hanja:"畵龍點睛", means:["가장 요긴한 부분을 마쳐 일을 완성함"]},
+  {n:"97", word:"환골탈태", hanja:"換骨奪胎", means:["전혀 딴사람처럼 더 나은 방향으로 바뀜"]},
+  {n:"98", word:"회자정리", hanja:"會者定離", means:["만난 사람은 언젠가 반드시 헤어지게 됨"]},
+  {n:"99", word:"후안무치", hanja:"厚顔無恥", means:["뻔뻔하여 부끄러움을 모름"]},
+  {n:"100", word:"흥진비래", hanja:"興盡悲來", means:["즐거운 일이 다하면 슬픈 일이 닥쳐옴"]}
+];
+
+// 화면 요소
+const homeEl = document.getElementById("home");
 const startEl = document.getElementById("start");
 const quizEl = document.getElementById("quiz");
+const idiomEl = document.getElementById("idiom");
 const resultEl = document.getElementById("result");
+const sections = [homeEl, startEl, quizEl, idiomEl, resultEl];
+function show(el) { sections.forEach(s => s.classList.add("hidden")); el.classList.remove("hidden"); }
 
+let mode = "spelling";        // spelling(맞춤법) / idiom(한자성어)
 let chosenCount = "all";
 let chosenOrder = "random";
-let current = [];     // 이번 판에 풀 문제들
-let index = 0;        // 지금 몇 번째 문제인지
+let current = [];
+let index = 0;
 let score = 0;
-let wrongList = [];   // 틀린 문제 모아두는 바구니
+let wrongList = [];
 
-// 시작 화면 칩 고르기
+// 칩 고르기
 function setupChips(groupId, setter) {
   const group = document.getElementById(groupId);
   group.addEventListener("click", (e) => {
@@ -427,7 +523,7 @@ function setupChips(groupId, setter) {
 setupChips("countChips", v => chosenCount = v);
 setupChips("orderChips", v => chosenOrder = v);
 
-// 바구니를 뒤섞는 함수 (피셔-예이츠)
+// 바구니 뒤섞기 (피셔-예이츠)
 function shuffle(list) {
   const copy = list.slice();
   for (let i = copy.length - 1; i > 0; i--) {
@@ -436,60 +532,70 @@ function shuffle(list) {
   }
   return copy;
 }
+function pickOne(list) { return list[Math.floor(Math.random() * list.length)]; }
+
+// 메뉴에서 모드 고르면 설정 화면으로
+function goSettings(m) {
+  mode = m;
+  document.getElementById("startTitle").textContent = (m === "spelling") ? "자주 틀리는 맞춤법" : "기출 한자성어";
+  show(startEl);
+}
+document.getElementById("goSpelling").addEventListener("click", () => goSettings("spelling"));
+document.getElementById("goIdiom").addEventListener("click", () => goSettings("idiom"));
+document.getElementById("startBack").addEventListener("click", () => show(homeEl));
 
 function startQuiz() {
-  let pool = chosenOrder === "random" ? shuffle(QUESTIONS) : QUESTIONS.slice();
-  if (chosenCount !== "all") {
-    pool = pool.slice(0, Number(chosenCount));
-  }
+  const source = (mode === "spelling") ? QUESTIONS : IDIOMS;
+  let pool = chosenOrder === "random" ? shuffle(source) : source.slice();
+  if (chosenCount !== "all") pool = pool.slice(0, Number(chosenCount));
+
+  // 한자성어는 이번 판에 보여줄 뜻을 미리 하나 뽑아 고정해둠
+  if (mode === "idiom") pool = pool.map(it => ({ ...it, clue: pickOne(it.means) }));
+
   current = pool;
   index = 0;
   score = 0;
   wrongList = [];
-  startEl.classList.add("hidden");
-  resultEl.classList.add("hidden");
-  quizEl.classList.remove("hidden");
+  show(mode === "spelling" ? quizEl : idiomEl);
   renderQuestion();
 }
 
 function renderQuestion() {
-  const q = current[index];
+  if (mode === "spelling") renderMcq();
+  else renderIdiom();
+}
 
+// 맞춤법(객관식) 렌더
+function renderMcq() {
+  const q = current[index];
   document.getElementById("counter").textContent = (index + 1) + " / " + current.length;
   document.getElementById("runningScore").textContent = "점수 " + score;
-  document.getElementById("progressBar").style.width = ((index) / current.length * 100) + "%";
+  document.getElementById("progressBar").style.width = (index / current.length * 100) + "%";
   document.getElementById("qnum").textContent = "원본 " + q.n + "번";
 
-  // ____ 자리를 밑줄 빈칸으로 바꿔서 보여줌
-  const promptEl = document.getElementById("prompt");
-  promptEl.innerHTML = escapeHtml(q.p).replace("____", '<span class="blank"></span>');
+  document.getElementById("prompt").innerHTML = escapeHtml(q.p).replace("____", '<span class="blank"></span>');
 
-  // 보기 버튼 만들기. 순서도 섞어줌
   const optionsEl = document.getElementById("options");
   optionsEl.innerHTML = "";
-  const shownOptions = shuffle(q.o);
-  shownOptions.forEach(opt => {
+  shuffle(q.o).forEach(opt => {
     const btn = document.createElement("button");
     btn.className = "opt";
     btn.innerHTML = '<span>' + escapeHtml(opt) + '</span>';
-    btn.addEventListener("click", () => pick(opt, q));
+    btn.addEventListener("click", () => pickMcq(opt, q));
     optionsEl.appendChild(btn);
   });
 
-  // 피드백 영역 숨기기
   document.getElementById("feedback").classList.add("hidden");
   document.getElementById("note").classList.add("hidden");
   document.getElementById("nextWrap").classList.add("hidden");
 }
 
-function pick(chosen, q) {
+function pickMcq(chosen, q) {
   const isRight = q.a.includes(chosen);
   if (isRight) score++;
   else wrongList.push({ q: q, mine: chosen });
 
-  // 버튼 잠그고 정답/오답 색칠
-  const buttons = document.querySelectorAll("#options .opt");
-  buttons.forEach(btn => {
+  document.querySelectorAll("#options .opt").forEach(btn => {
     const label = btn.querySelector("span").textContent;
     btn.disabled = true;
     if (q.a.includes(label)) {
@@ -502,17 +608,12 @@ function pick(chosen, q) {
     }
   });
 
-  // 판정 문구
   const verdict = document.getElementById("verdict");
   verdict.textContent = isRight ? "정답" : "오답 - 정답은 " + q.a.join(", ");
   verdict.className = "verdict " + (isRight ? "ok" : "no");
 
-  // 설명 있으면 보여주기
   const noteEl = document.getElementById("note");
-  if (q.note) {
-    noteEl.textContent = q.note;
-    noteEl.classList.remove("hidden");
-  }
+  if (q.note) { noteEl.textContent = q.note; noteEl.classList.remove("hidden"); }
 
   document.getElementById("feedback").classList.remove("hidden");
   document.getElementById("runningScore").textContent = "점수 " + score;
@@ -523,6 +624,68 @@ function pick(chosen, q) {
   nextBtn.focus();
 }
 
+// 한자성어(주관식) 렌더
+function renderIdiom() {
+  const q = current[index];
+  document.getElementById("iCounter").textContent = (index + 1) + " / " + current.length;
+  document.getElementById("iScore").textContent = "점수 " + score;
+  document.getElementById("iProgress").style.width = (index / current.length * 100) + "%";
+  document.getElementById("iQnum").textContent = "원본 " + q.n + "번";
+  document.getElementById("iClue").textContent = q.clue;
+
+  const input = document.getElementById("iInput");
+  input.value = "";
+  input.disabled = false;
+  document.getElementById("iSubmit").disabled = false;
+  document.getElementById("iSkip").classList.remove("hidden");
+
+  document.getElementById("iFeedback").classList.add("hidden");
+  document.getElementById("iNextWrap").classList.add("hidden");
+  input.focus();
+}
+
+// 띄어쓰기 지우고 비교
+function normalize(s) { return s.replace(/\s+/g, ""); }
+
+function submitIdiom() {
+  const q = current[index];
+  const input = document.getElementById("iInput");
+  const typed = input.value.trim();
+  if (typed === "") return;   // 빈 칸이면 제출 안 함
+  revealIdiom(q, typed, normalize(typed) === normalize(q.word));
+}
+
+function skipIdiom() {
+  const q = current[index];
+  revealIdiom(q, "", false, true);
+}
+
+function revealIdiom(q, typed, isRight, skipped) {
+  if (isRight) score++;
+  else wrongList.push({ q: q, mine: skipped ? "(정답 보기)" : typed });
+
+  document.getElementById("iInput").disabled = true;
+  document.getElementById("iSubmit").disabled = true;
+  document.getElementById("iSkip").classList.add("hidden");
+
+  const verdict = document.getElementById("iVerdict");
+  verdict.textContent = isRight ? "정답" : "오답";
+  verdict.className = "verdict " + (isRight ? "ok" : "no");
+
+  const allMeans = q.means.map(m => "<div>· " + escapeHtml(m) + "</div>").join("");
+  document.getElementById("iReveal").innerHTML =
+    '<div class="answer-big">' + escapeHtml(q.word) + '<span class="hanja">' + escapeHtml(q.hanja) + '</span></div>' +
+    '<div class="means">' + allMeans + '</div>';
+
+  document.getElementById("iFeedback").classList.remove("hidden");
+  document.getElementById("iScore").textContent = "점수 " + score;
+
+  const nextBtn = document.getElementById("iNextBtn");
+  nextBtn.textContent = (index + 1 === current.length) ? "결과 보기" : "다음";
+  document.getElementById("iNextWrap").classList.remove("hidden");
+  nextBtn.focus();
+}
+
 function next() {
   index++;
   if (index >= current.length) showResult();
@@ -530,9 +693,7 @@ function next() {
 }
 
 function showResult() {
-  quizEl.classList.add("hidden");
-  resultEl.classList.remove("hidden");
-
+  show(resultEl);
   const total = current.length;
   const pct = Math.round(score / total * 100);
   document.getElementById("finalScore").textContent = score + " / " + total;
@@ -553,28 +714,36 @@ function showResult() {
     const q = item.q;
     const div = document.createElement("div");
     div.className = "review-item";
-    const sentence = escapeHtml(q.p).replace("____", "(&nbsp;&nbsp;&nbsp;&nbsp;)");
-    let html = '<div class="rq">' + q.n + "번. " + sentence + "</div>";
-    html += '<div class="ra mine">내 선택: ' + escapeHtml(item.mine) + "</div>";
-    html += '<div class="ra ans">정답: ' + escapeHtml(q.a.join(", ")) + "</div>";
-    if (q.note) html += '<div class="rnote">' + escapeHtml(q.note) + "</div>";
+    let html;
+    if (mode === "spelling") {
+      const sentence = escapeHtml(q.p).replace("____", "(&nbsp;&nbsp;&nbsp;&nbsp;)");
+      html = '<div class="rq">' + q.n + "번. " + sentence + "</div>";
+      html += '<div class="ra mine">내 선택: ' + escapeHtml(item.mine) + "</div>";
+      html += '<div class="ra ans">정답: ' + escapeHtml(q.a.join(", ")) + "</div>";
+      if (q.note) html += '<div class="rnote">' + escapeHtml(q.note) + "</div>";
+    } else {
+      html = '<div class="rq">' + q.n + "번. " + escapeHtml(q.clue) + "</div>";
+      html += '<div class="ra mine">내 답: ' + escapeHtml(item.mine) + "</div>";
+      html += '<div class="ra ans">정답: ' + escapeHtml(q.word) + " (" + escapeHtml(q.hanja) + ")</div>";
+    }
     div.innerHTML = html;
     area.appendChild(div);
   });
 }
 
-// < 같은 글자가 그대로 보이게 처리
 function escapeHtml(str) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+// 버튼 연결
 document.getElementById("startBtn").addEventListener("click", startQuiz);
 document.getElementById("nextBtn").addEventListener("click", next);
+document.getElementById("iNextBtn").addEventListener("click", next);
+document.getElementById("iSubmit").addEventListener("click", submitIdiom);
+document.getElementById("iSkip").addEventListener("click", skipIdiom);
+document.getElementById("iInput").addEventListener("keydown", (e) => { if (e.key === "Enter") submitIdiom(); });
 document.getElementById("againBtn").addEventListener("click", startQuiz);
-document.getElementById("homeBtn").addEventListener("click", () => {
-  resultEl.classList.add("hidden");
-  startEl.classList.remove("hidden");
-});
+document.getElementById("homeBtn").addEventListener("click", () => show(homeEl));
 </script>
 </body>
 </html>
