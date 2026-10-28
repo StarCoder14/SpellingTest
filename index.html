@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>자주 틀리는 맞춤법 퀴즈</title>
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --card: #ffffff;
+    --text: #1f2430;
+    --muted: #6b7280;
+    --line: #e3e7ef;
+    --accent: #3a6df0;
+    --accent-soft: #e8efff;
+    --correct: #1f9d57;
+    --correct-soft: #e4f6ec;
+    --wrong: #d64545;
+    --wrong-soft: #fdeaea;
+    --shadow: 0 10px 30px rgba(31, 36, 48, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12151c;
+      --card: #1b1f29;
+      --text: #e8eaf0;
+      --muted: #9aa3b2;
+      --line: #2a2f3b;
+      --accent: #5b8cff;
+      --accent-soft: #223056;
+      --correct: #43c478;
+      --correct-soft: #163a28;
+      --wrong: #ff6b6b;
+      --wrong-soft: #3d1f22;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    line-height: 1.6;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    margin: 8px 0 4px;
+    letter-spacing: -0.02em;
+  }
+  .sub { color: var(--muted); font-size: 0.95rem; margin-bottom: 22px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+
+  /* 시작 화면 */
+  .field { margin-bottom: 22px; }
+  .field > label { display: block; font-weight: 700; margin-bottom: 10px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip {
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--text);
+    border-radius: 999px;
+    padding: 10px 18px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: 0.15s;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip.on {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 700;
+  }
+  .btn {
+    width: 100%;
+    border: none;
+    border-radius: 14px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding: 15px;
+    cursor: pointer;
+    transition: 0.15s;
+  }
+  .btn:hover { filter: brightness(1.05); }
+  .btn.ghost {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--line);
+  }
+
+  /* 진행 바 */
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .topbar .count { font-size: 0.9rem; color: var(--muted); }
+  .topbar .score { font-size: 0.9rem; font-weight: 700; }
+  .progress { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; margin-bottom: 22px; }
+  .progress > span { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.25s; }
+
+  .qnum { color: var(--muted); font-size: 0.85rem; margin-bottom: 8px; }
+  .prompt { font-size: 1.3rem; font-weight: 700; margin-bottom: 22px; letter-spacing: -0.01em; }
+  .blank {
+    display: inline-block;
+    min-width: 54px;
+    border-bottom: 3px solid var(--accent);
+    margin: 0 2px;
+    vertical-align: bottom;
+  }
+
+  .options { display: grid; gap: 12px; }
+  .opt {
+    text-align: left;
+    border: 1.5px solid var(--line);
+    background: var(--card);
+    color: var(--text);
+    border-radius: 14px;
+    padding: 15px 18px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.12s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
+  .opt .mark { margin-left: auto; font-weight: 700; font-size: 0.9rem; }
+  .opt.correct { border-color: var(--correct); background: var(--correct-soft); color: var(--correct); }
+  .opt.wrong { border-color: var(--wrong); background: var(--wrong-soft); color: var(--wrong); }
+  .opt:disabled { cursor: default; }
+
+  .feedback { margin-top: 20px; }
+  .verdict { font-weight: 700; margin-bottom: 6px; }
+  .verdict.ok { color: var(--correct); }
+  .verdict.no { color: var(--wrong); }
+  .note {
+    background: var(--accent-soft);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+  .next { margin-top: 18px; }
+
+  /* 결과 화면 */
+  .result-score { text-align: center; margin-bottom: 8px; }
+  .result-score .big { font-size: 3rem; font-weight: 800; letter-spacing: -0.03em; }
+  .result-score .pct { color: var(--muted); }
+  .review-title { font-weight: 700; margin: 26px 0 12px; }
+  .review-item {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .review-item .rq { font-weight: 700; margin-bottom: 8px; }
+  .review-item .ra { font-size: 0.92rem; }
+  .review-item .mine { color: var(--wrong); }
+  .review-item .ans { color: var(--correct); }
+  .review-item .rnote { color: var(--muted); font-size: 0.88rem; margin-top: 6px; }
+  .allright { text-align: center; color: var(--correct); font-weight: 700; margin: 26px 0; }
+  .btn-row { display: flex; gap: 12px; margin-top: 24px; }
+  .btn-row .btn { flex: 1; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>자주 틀리는 맞춤법 퀴즈</h1>
+  <p class="sub">운정고 1학년 국어 &lt;자주 틀리는 맞춤법&gt; 150문항으로 만든 연습 퀴즈</p>
+
+  <!-- 시작 화면 -->
+  <section id="start" class="card">
+    <div class="field">
+      <label>몇 문제 풀까?</label>
+      <div class="chips" id="countChips">
+        <button class="chip" data-count="10">10문제</button>
+        <button class="chip" data-count="20">20문제</button>
+        <button class="chip" data-count="50">50문제</button>
+        <button class="chip on" data-count="all">전체</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>순서는?</label>
+      <div class="chips" id="orderChips">
+        <button class="chip on" data-order="random">랜덤</button>
+        <button class="chip" data-order="inorder">번호순</button>
+      </div>
+    </div>
+    <button class="btn" id="startBtn">시작하기</button>
+  </section>
+
+  <!-- 퀴즈 화면 -->
+  <section id="quiz" class="hidden">
+    <div class="topbar">
+      <span class="count" id="counter"></span>
+      <span class="score" id="runningScore"></span>
+    </div>
+    <div class="progress"><span id="progressBar"></span></div>
+
+    <div class="card">
+      <div class="qnum" id="qnum"></div>
+      <div class="prompt" id="prompt"></div>
+      <div class="options" id="options"></div>
+      <div class="feedback hidden" id="feedback">
+        <div class="verdict" id="verdict"></div>
+        <div class="note hidden" id="note"></div>
+      </div>
+      <div class="next hidden" id="nextWrap">
+        <button class="btn" id="nextBtn">다음</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 결과 화면 -->
+  <section id="result" class="hidden">
+    <div class="card">
+      <div class="result-score">
+        <div class="big" id="finalScore"></div>
+        <div class="pct" id="finalPct"></div>
+      </div>
+      <div id="reviewArea"></div>
+      <div class="btn-row">
+        <button class="btn ghost" id="againBtn">다시 풀기</button>
+        <button class="btn" id="homeBtn">처음으로</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+// 문제 목록. 한 줄에 한 문제. p는 문장(____ 자리가 빈칸), o는 보기, a는 정답(여러 개면 다 맞음), note는 설명.
+const QUESTIONS = [
+  {n:"1", p:"병이 얼른 ____ 좋겠다.", o:["낳으면","나으면"], a:["나으면"], note:"'낫다(병이 낫다)'라서 '나으면'. '낳다'는 아이를 낳다."},
+  {n:"2", p:"이 옷이 더 ____하지?", o:["문안","무난"], a:["무난"], note:""},
+  {n:"3", p:"오늘은 ____ 숙제 다 할 거야.", o:["반드시","반듯이"], a:["반드시"], note:"'반드시'는 꼭. '반듯이'는 비뚤지 않고 바르게."},
+  {n:"4", p:"왜 난리 ____인지 모르겠네.", o:["법석","법썩"], a:["법석"], note:""},
+  {n:"5", p:"머리를 ____ 잘랐어.", o:["싹둑","싹뚝"], a:["싹둑"], note:""},
+  {n:"6", p:"____ 기억이 났어.", o:["언듯","언뜻"], a:["언뜻"], note:""},
+  {n:"7", p:"____ 비빔밥", o:["짭잘한","짭짤한"], a:["짭짤한"], note:""},
+  {n:"8", p:"김치를 ____.", o:["담갔다","담궜다"], a:["담갔다"], note:"기본형이 '담그다'라서 '담가/담갔다'."},
+  {n:"9", p:"바른 표기를 고르세요.", o:["깍뚝이","깍둑이","깍두기","깍뚜기"], a:["깍두기"], note:""},
+  {n:"10", p:"물을 넣고 ____ 주세요.", o:["졸여","조려"], a:["졸여"], note:"국물을 줄이는 건 '졸이다'. 양념이 배게 하는 건 '조리다'(생선조림)."},
+  {n:"11", p:"직접 ____ 대추차", o:["달인","다린"], a:["달인"], note:"차·약은 '달이다'. 옷은 '다리다'."},
+  {n:"12", p:"바른 표기를 고르세요.", o:["오뚝이","오뚜기"], a:["오뚝이"], note:""},
+  {n:"13", p:"바른 표기를 고르세요.", o:["몇일","몇 일","며칠"], a:["며칠"], note:""},
+  {n:"14", p:"내가 가도 ____?", o:["돼","되"], a:["돼"], note:"'되어'로 바꿔 말이 되면 '돼'."},
+  {n:"15", p:"하면 ____.", o:["돼요","되요"], a:["돼요"], note:""},
+  {n:"16", p:"내일 또 ____.", o:["봬요","뵈요"], a:["봬요"], note:"'뵈어요'의 준말이라 '봬요'."},
+  {n:"17", p:"일이 잘 ____ 바란다.", o:["되길","돼길"], a:["되길"], note:"'되기를'이라 '되길'."},
+  {n:"18", p:"바른 표기를 고르세요.", o:["성공율","성공률"], a:["성공률"], note:"받침 있는 말 뒤(ㄴ 제외)는 '-률'."},
+  {n:"19", p:"바른 표기를 고르세요.", o:["백분율","백분률"], a:["백분율"], note:"받침이 'ㄴ'이거나 모음 뒤면 '-율'."},
+  {n:"20-1", p:"바른 표기를 고르세요.", o:["눈곱","눈꼽"], a:["눈곱"], note:""},
+  {n:"20-2", p:"바른 표기를 고르세요.", o:["배곱","배꼽"], a:["배꼽"], note:""},
+  {n:"21", p:"바른 표기를 고르세요.", o:["얽히고섥히다","얽히고설키다"], a:["얽히고설키다"], note:""},
+  {n:"22", p:"바른 표기를 고르세요.", o:["짜장면","자장면"], a:["짜장면","자장면"], note:"둘 다 표준어야."},
+  {n:"23", p:"바른 표기를 고르세요.", o:["늦장 대응","늑장 대응"], a:["늦장 대응","늑장 대응"], note:"'늦장'과 '늑장' 둘 다 표준어야."},
+  {n:"24", p:"제 소개는 이 그림으로 ____하겠습니다.", o:["갈음","가름"], a:["갈음"], note:"대신하는 건 '갈음'. 나누는 건 '가름'."},
+  {n:"25", p:"____ 한 시간 정도 걸려.", o:["겉잡아서","걷잡아서"], a:["겉잡아서"], note:"겉으로 어림잡는 건 '겉잡다'."},
+  {n:"26", p:"바른 표기를 고르세요.", o:["해님","햇님"], a:["해님"], note:"'해'+'님'은 사이시옷 안 붙여."},
+  {n:"27", p:"운동을 시작한 지 ____로 오 년.", o:["해수","햇수"], a:["햇수"], note:""},
+  {n:"28-1", p:"바른 표기를 고르세요.", o:["전세방","전셋방"], a:["전세방"], note:"한자어끼리라 사이시옷 없음."},
+  {n:"28-2", p:"바른 표기를 고르세요.", o:["전세집","전셋집"], a:["전셋집"], note:"'집'은 고유어라 사이시옷 붙음."},
+  {n:"28-3", p:"바른 표기를 고르세요.", o:["세방","셋방"], a:["셋방"], note:"한자어지만 예외로 사이시옷 붙는 말."},
+  {n:"29", p:"바른 표기를 고르세요.", o:["인사말","인삿말"], a:["인사말"], note:""},
+  {n:"30", p:"바른 표기를 고르세요.", o:["존대말","존댓말"], a:["존댓말"], note:""},
+  {n:"31", p:"바른 표기를 고르세요.", o:["뒤풀이","뒷풀이"], a:["뒤풀이"], note:""},
+  {n:"32", p:"바른 표기를 고르세요.", o:["오렌지빛","오렌짓빛"], a:["오렌지빛"], note:""},
+  {n:"33", p:"____ 고작 이거야?", o:["에개","애걔"], a:["애걔"], note:"사전에 오른 정식 표기는 '애걔'야. 학습지엔 '애개'로 돼 있었어."},
+  {n:"34", p:"나무가 ____ 뻗어 있었다.", o:["멋드러지게","멋들어지게"], a:["멋들어지게"], note:""},
+  {n:"35", p:"____ 들려온 소문에 의하면", o:["간간이","간간히"], a:["간간이"], note:""},
+  {n:"36", p:"나도 ____ 생각해 봤어.", o:["곰곰이","곰곰히"], a:["곰곰이"], note:""},
+  {n:"37", p:"____ 정리하고 가자.", o:["깨끗이","깨끗히"], a:["깨끗이"], note:""},
+  {n:"38", p:"____ 공부하는 습관을 들이자.", o:["틈틈이","틈틈히"], a:["틈틈이"], note:""},
+  {n:"39", p:"일을 ____ 않고 처리했다.", o:["서슴지","서슴치"], a:["서슴지"], note:"기본형이 '서슴다'."},
+  {n:"40", p:"그건 앞뒤가 맞지 ____.", o:["안잖아","않잖아"], a:["않잖아"], note:"'아니하잖아'의 준말이라 '않-'."},
+  {n:"41", p:"____ 운동장에서 뛰어놀았다.", o:["널찍한","넓직한"], a:["널찍한"], note:""},
+  {n:"42", p:"바른 표기를 고르세요.", o:["일찍이","일찌기"], a:["일찍이"], note:""},
+  {n:"43", p:"아파서 ____.", o:["어떻해","어떡해"], a:["어떡해"], note:"'어떻게 해'의 준말이라 '어떡해'."},
+  {n:"44", p:"오늘은 ____.", o:["왠지","웬지"], a:["왠지"], note:"'왜인지'의 준말이라 '왠지'."},
+  {n:"45", p:"바른 표기를 고르세요.", o:["웬일인지","왠일인지"], a:["웬일인지"], note:"'웬일'은 '어찌 된 일'. '왠'은 '왠지'에만 써."},
+  {n:"46", p:"정답을 ____.", o:["맞히다","맞추다"], a:["맞히다"], note:"정답을 알아맞히는 건 '맞히다'."},
+  {n:"47", p:"줄을 ____.", o:["맞히다","맞추다"], a:["맞추다"], note:"서로 나란히 하는 건 '맞추다'."},
+  {n:"48", p:"화살을 과녁에 ____.", o:["맞히다","맞추다"], a:["맞히다"], note:"목표에 적중시키는 건 '맞히다'."},
+  {n:"49", p:"예방접종을 ____.", o:["맞히다","맞추다"], a:["맞히다"], note:"주사를 놓아 맞게 하는 건 '맞히다'."},
+  {n:"50", p:"그는 나를 ____ 쳐다봤다.", o:["지그시","지긋이"], a:["지그시"], note:"슬며시 누르거나 바라보는 건 '지그시'."},
+  {n:"51", p:"연세가 ____ 든 분께서", o:["지그시","지긋이"], a:["지긋이"], note:"나이가 꽤 많은 건 '지긋이'."},
+  {n:"52", p:"액자를 ____ 놓아두었다.", o:["받드시","반듯이"], a:["반듯이"], note:"비뚤지 않게 바르게는 '반듯이'."},
+  {n:"53", p:"가방을 ____.", o:["매다","메다"], a:["메다"], note:"어깨에 걸치는 건 '메다'."},
+  {n:"54", p:"신발끈을 ____.", o:["매다","메다"], a:["매다"], note:"끈을 묶는 건 '매다'."},
+  {n:"55", p:"화를 ____.", o:["돋우다","돋구다"], a:["돋우다"], note:"'돋구다'는 안경 도수에만 써."},
+  {n:"56", p:"밤을 ____.", o:["새우다","세우다"], a:["새우다"], note:"잠 안 자고 밤을 지내는 건 '새우다'."},
+  {n:"57", p:"건물을 ____.", o:["새우다","세우다"], a:["세우다"], note:""},
+  {n:"58", p:"나에겐 한 가지 ____이 있어.", o:["바람","바램"], a:["바람"], note:"'바라다'의 명사라 '바람'."},
+  {n:"59", p:"시험에 꼭 합격하길 ____.", o:["바래","바라"], a:["바라"], note:"기본형이 '바라다'라서 '바라'."},
+  {n:"60", p:"바른 표기를 고르세요.", o:["돌맹이","돌멩이"], a:["돌멩이"], note:"'돌멩이'가 표준어. 학습지엔 '돌맹이'로 잘못 표시돼 있었어."},
+  {n:"61", p:"____가 떨어진다.", o:["정나미","정내미"], a:["정나미"], note:""},
+  {n:"62", p:"바른 표기를 고르세요.", o:["째째하게","쩨쩨하게"], a:["쩨쩨하게"], note:""},
+  {n:"63", p:"바른 표기를 고르세요.", o:["재작년","제작년"], a:["재작년"], note:"지지난해는 '재작년'."},
+  {n:"64", p:"시간을 ____.", o:["때우다","떼우다"], a:["때우다"], note:""},
+  {n:"65", p:"고기 냄새가 옷에 ____.", o:["배었다","베었다"], a:["배었다"], note:"스며드는 건 '배다'. 자르는 건 '베다'."},
+  {n:"66", p:"바른 표기를 고르세요.", o:["금새","금세"], a:["금세"], note:"'금시에'의 준말이라 '금세'."},
+  {n:"67", p:"바른 표기를 고르세요.", o:["요새","요세"], a:["요새"], note:""},
+  {n:"68", p:"잔디를 ____.", o:["깍다","깎다"], a:["깎다"], note:""},
+  {n:"69", p:"옷에 ____.", o:["묻다","뭍다"], a:["묻다"], note:"'뭍다'라는 말은 없어."},
+  {n:"70", p:"땅에 ____.", o:["묻다","뭍다"], a:["묻다"], note:""},
+  {n:"71", p:"선생님께 ____.", o:["묻다","뭍다"], a:["묻다"], note:""},
+  {n:"72-1", p:"바른 표기를 고르세요.", o:["육계장","육개장"], a:["육개장"], note:""},
+  {n:"72-2", p:"바른 표기를 고르세요.", o:["닭계장","닭개장"], a:["닭개장"], note:""},
+  {n:"73", p:"바른 표기를 고르세요.", o:["베개","베게"], a:["베개"], note:""},
+  {n:"74", p:"바른 표기를 고르세요.", o:["찌개","찌게"], a:["찌개"], note:""},
+  {n:"75", p:"바른 표기를 고르세요.", o:["학생이에요","학생이예요"], a:["학생이에요"], note:"받침 있는 말 뒤는 '-이에요'."},
+  {n:"76", p:"바른 표기를 고르세요.", o:["바보에요","바보예요"], a:["바보예요"], note:"받침 없는 말 뒤는 '-예요'(이에요의 준말)."},
+  {n:"77", p:"바른 표기를 고르세요.", o:["아니에요","아니예요"], a:["아니에요"], note:"'아니-'에는 '-에요'가 붙어."},
+  {n:"78", p:"진작에 와 ____!", o:["볼걸","볼껄"], a:["볼걸"], note:"'-ㄹ걸'은 된소리로 안 적어."},
+  {n:"79", p:"시험을 ____.", o:["치렀습니다","치뤘습니다"], a:["치렀습니다"], note:"기본형이 '치르다'."},
+  {n:"80", p:"문을 ____ 주세요.", o:["잠가","잠궈"], a:["잠가"], note:"기본형이 '잠그다'라서 '잠가'."},
+  {n:"81", p:"바른 표기를 고르세요.", o:["오랫만에","오랜만에"], a:["오랜만에"], note:"'오래간만'의 준말이라 '오랜만'."},
+  {n:"82", p:"체력이 ____.", o:["달려서","딸려서"], a:["달려서"], note:"모자란다는 뜻은 '달리다'."},
+  {n:"83", p:"바른 표기를 고르세요.", o:["뒤치다꺼리","뒤치닥거리"], a:["뒤치다꺼리"], note:""},
+  {n:"84", p:"바른 표기를 고르세요.", o:["구시렁거리다","궁시렁거리다"], a:["구시렁거리다"], note:""},
+  {n:"85", p:"바른 표기를 고르세요.", o:["얼마큼","얼만큼"], a:["얼마큼"], note:"'얼마만큼'의 준말이라 '얼마큼'."},
+  {n:"86", p:"바른 표기를 고르세요.", o:["두리뭉실","두루뭉술"], a:["두루뭉술"], note:""},
+  {n:"87", p:"바른 표기를 고르세요.", o:["파토","파투"], a:["파투"], note:"'파투(破鬪)나다'에서 온 말."},
+  {n:"88", p:"바른 표기를 고르세요.", o:["설거지","설겆이"], a:["설거지"], note:""},
+  {n:"89", p:"____ 얼굴로", o:["앳된","애띤"], a:["앳된"], note:""},
+  {n:"90", p:"바른 표기를 고르세요.", o:["임마","인마"], a:["인마"], note:"'이놈아'의 준말이라 '인마'."},
+  {n:"91", p:"바른 표기를 고르세요.", o:["설레임","설렘"], a:["설렘"], note:"기본형이 '설레다'라서 '설렘'."},
+  {n:"92", p:"물건을 ____ 다루지 마라.", o:["허투루","허투로"], a:["허투루"], note:""},
+  {n:"93", p:"그 이야기는 정말 ____하다.", o:["황당무계","황당무개"], a:["황당무계"], note:"'황당무계(荒唐無稽)'."},
+  {n:"94", p:"친구에게 ____ 물어보았다.", o:["넌지시","넌즈시"], a:["넌지시"], note:""},
+  {n:"95", p:"과일을 ____ 먹었다.", o:["껍질째","껍질채"], a:["껍질째"], note:"'그대로'의 뜻은 '-째'."},
+  {n:"96", p:"____ 공부할 나이다.", o:["한참","한창"], a:["한창"], note:"가장 활기찰 때는 '한창'. '한참'은 시간이 꽤."},
+  {n:"97", p:"바른 표기를 고르세요.", o:["어리버리하다","어리바리하다"], a:["어리바리하다"], note:""},
+  {n:"98", p:"바른 표기를 고르세요.", o:["닦달하다","닥달하다"], a:["닦달하다"], note:""},
+  {n:"99", p:"바른 표기를 고르세요.", o:["어따대고","얻다 대고"], a:["얻다 대고"], note:"'어디에다'의 준말이라 '얻다'."},
+  {n:"100", p:"바른 표기를 고르세요.", o:["곱씹다","곰씹다"], a:["곱씹다"], note:""},
+  {n:"101", p:"바른 표기를 고르세요.", o:["밀어부치다","밀어붙이다"], a:["밀어붙이다"], note:"세게 밀고 나가는 건 '밀어붙이다'."},
+  {n:"102", p:"그에게 편지를 ____.", o:["부쳤다","붙였다"], a:["부쳤다"], note:"보내는 건 '부치다'. 달라붙게 하는 건 '붙이다'."},
+  {n:"103", p:"바른 표기를 고르세요.", o:["무릎","무릅"], a:["무릎"], note:"신체는 '무릎'. '무릅쓰다'는 다른 말."},
+  {n:"104", p:"바른 표기를 고르세요.", o:["오지랖","오지랍"], a:["오지랖"], note:""},
+  {n:"105", p:"교실 책상을 새 것으로 ____하였다.", o:["갈음","가름"], a:["갈음"], note:"바꿔 대신하는 건 '갈음'."},
+  {n:"106", p:"____ 한 시간 정도 걸리겠다.", o:["걷잡아서","겉잡아서"], a:["겉잡아서"], note:"겉으로 어림잡는 건 '겉잡다'."},
+  {n:"107", p:"눈물이 ____ 수 없이 흘러서", o:["걷잡을","겉잡을"], a:["걷잡을"], note:"'걷잡을 수 없다'는 막아 잡을 수 없다는 뜻."},
+  {n:"108", p:"바른 표기를 고르세요.", o:["넉두리","넋두리"], a:["넋두리"], note:""},
+  {n:"109", p:"____ 그렇게 알고 있어.", o:["아무튼","아뭏든"], a:["아무튼"], note:""},
+  {n:"110", p:"____ 결과는 좋았다.", o:["어쨌든","어쨋든"], a:["어쨌든"], note:""},
+  {n:"111", p:"부모님 속을 ____ 마라.", o:["썩이지","썩히지"], a:["썩이지"], note:"마음을 괴롭히는 건 '썩이다'. 음식 등은 '썩히다'."},
+  {n:"112", p:"서민 경제를 ____ 것이다.", o:["결단낸","결딴낸"], a:["결딴낸"], note:"망가뜨리는 건 '결딴내다'."},
+  {n:"113", p:"원칙을 ____ 행동했다.", o:["좇아","쫓아"], a:["좇아"], note:"뜻·목표를 따르는 건 '좇다'. 사람·짐승을 뒤쫓는 건 '쫓다'."},
+  {n:"114", p:"공원에서 담배를 ____ 주세요.", o:["삼가해","삼가"], a:["삼가"], note:"기본형이 '삼가다'라서 '삼가'."},
+  {n:"115", p:"일을 그렇게 처리하다니 ____.", o:["어의없다","어이없다"], a:["어이없다"], note:""},
+  {n:"116", p:"수학을 ____.", o:["가르치다","가리키다"], a:["가르치다"], note:"지식을 알려주는 건 '가르치다'. 방향을 짚는 건 '가리키다'."},
+  {n:"117", p:"카드 ____이 다가온다.", o:["결제일","결재일"], a:["결제일"], note:"돈을 치르는 건 '결제'. 윗사람 승인은 '결재'."},
+  {n:"118", p:"부장님께 ____ 받을 서류가 있어.", o:["결제","결재"], a:["결재"], note:"윗사람이 승인하는 건 '결재'."},
+  {n:"119", p:"바른 표기를 고르세요.", o:["희안하다","희한하다"], a:["희한하다"], note:""},
+  {n:"120", p:"바른 표기를 고르세요.", o:["철석같이","철썩같이"], a:["철석같이"], note:"'철석(鐵石)같이'는 쇠와 돌처럼 굳게."},
+  {n:"121", p:"바른 표기를 고르세요.", o:["후유증","휴유증"], a:["후유증"], note:""},
+  {n:"122", p:"결혼식 ____", o:["부조금","부주금"], a:["부조금"], note:""},
+  {n:"123", p:"____ 그럴 필요 있어?", o:["굳이","구지"], a:["굳이"], note:""},
+  {n:"124", p:"나랑 ____ 하자.", o:["연애","연예"], a:["연애"], note:"사랑하는 건 '연애'. 방송·공연은 '연예'."},
+  {n:"125", p:"바른 표기를 고르세요.", o:["연예인","연애인"], a:["연예인"], note:""},
+  {n:"126", p:"바른 표기를 고르세요.", o:["고난이도","고난도"], a:["고난도"], note:"'난도'가 이미 어려운 정도라 '고난도'."},
+  {n:"127", p:"바른 표기를 고르세요.", o:["십상이다","쉽상이다"], a:["십상이다"], note:"'십상(十常)'은 열에 아홉."},
+  {n:"128", p:"불안하더니 결국 ____이 났군.", o:["사단","사달"], a:["사달"], note:"사고·탈은 '사달'."},
+  {n:"129", p:"____ 같은 박수가 터졌다.", o:["우레","우뢰"], a:["우레"], note:"천둥은 '우레'."},
+  {n:"130", p:"그건 ____ 전문가도 어렵다.", o:["내로라하는","내노라하는"], a:["내로라하는"], note:""},
+  {n:"131", p:"평등을 ____한다.", o:["지양","지향"], a:["지향"], note:"목표로 나아가는 건 '지향'. 피하는 건 '지양'."},
+  {n:"132", p:"그가 나를 ____ 나도 그를 믿는다.", o:["믿으므로","믿음으로"], a:["믿으므로"], note:"까닭은 '-으므로'. 수단은 '-음으로(써)'."},
+  {n:"133", p:"너와 나는 ____.", o:["다르다","틀리다"], a:["다르다"], note:"같지 않은 건 '다르다'. 맞지 않은 건 '틀리다'."},
+  {n:"134", p:"바른 표기를 고르세요.", o:["하든지 말든지","하던지 말던지"], a:["하든지 말든지"], note:"선택은 '-든지'. 지난 일은 '-던지'."},
+  {n:"135", p:"내가 ____.", o:["엄마로서","엄마로써"], a:["엄마로서"], note:"자격·신분은 '-로서'. 수단·도구는 '-로써'."},
+  {n:"136", p:"집에 ____ 전화할게.", o:["도착하는 대로","도착하는 데로"], a:["도착하는 대로"], note:"'~하자마자'의 뜻은 '대로'."},
+  {n:"137-1", p:"이건 나만 아는 ____ 둘이 사귄대.", o:["비밀인대","비밀인데"], a:["비밀인데"], note:"상황을 설명할 땐 '-ㄴ데'."},
+  {n:"137-2", p:"이건 나만 아는 비밀인데 둘이 ____.", o:["사귄대","사귄데"], a:["사귄대"], note:"남의 말을 전할 땐 '-ㄴ대(-다고 해)'."},
+  {n:"138", p:"____ 수업 끝나고 만나. (조금 후에)", o:["있다가","이따가"], a:["이따가"], note:"조금 후에는 '이따가'. 머물다가는 '있다가'."},
+  {n:"139", p:"모든 것이 ____ 났다.", o:["풍비박산","풍지박산"], a:["풍비박산"], note:"'풍비박산(風飛雹散)'."},
+  {n:"140", p:"____의 위기에 놓였다.", o:["절체절명","절대절명"], a:["절체절명"], note:"'절체절명(絶體絶命)'."},
+  {n:"141", p:"두 사람은 ____하며 지냈다.", o:["동고동락","동거동락"], a:["동고동락"], note:"'동고동락(同苦同樂)'은 괴로움과 즐거움을 함께함."},
+  {n:"142", p:"그는 ____을 자세히 설명했다.", o:["자초지종","자초지정"], a:["자초지종"], note:"'자초지종(自初至終)'은 처음부터 끝까지."},
+  {n:"143", p:"____ 화면", o:["캡쳐","캡처"], a:["캡처"], note:"외래어 표기는 '캡처'."},
+  {n:"144", p:"바른 표기를 고르세요.", o:["쉐프","셰프"], a:["셰프"], note:""},
+  {n:"145", p:"바른 표기를 고르세요.", o:["슈퍼맨","수퍼맨"], a:["슈퍼맨"], note:""},
+  {n:"146-1", p:"바른 표기를 고르세요.", o:["프라이팬","후라이팬"], a:["프라이팬"], note:""},
+  {n:"146-2", p:"바른 표기를 고르세요.", o:["파이팅","화이팅"], a:["파이팅"], note:""},
+  {n:"147", p:"바른 표기를 고르세요.", o:["내비게이션","네비게이션"], a:["내비게이션"], note:""},
+  {n:"148", p:"바른 표기를 고르세요.", o:["케익","케잌","케이크"], a:["케이크"], note:""},
+  {n:"149", p:"바른 표기를 고르세요.", o:["스노쿨링","스노클링"], a:["스노클링"], note:""},
+  {n:"150", p:"바른 표기를 고르세요.", o:["리더쉽","리더십"], a:["리더십"], note:"외래어 표기는 '-십'."}
+];
+
+// 화면 요소 모으기
+const startEl = document.getElementById("start");
+const quizEl = document.getElementById("quiz");
+const resultEl = document.getElementById("result");
+
+let chosenCount = "all";
+let chosenOrder = "random";
+let current = [];     // 이번 판에 풀 문제들
+let index = 0;        // 지금 몇 번째 문제인지
+let score = 0;
+let wrongList = [];   // 틀린 문제 모아두는 바구니
+
+// 시작 화면 칩 고르기
+function setupChips(groupId, setter) {
+  const group = document.getElementById(groupId);
+  group.addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    group.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
+    chip.classList.add("on");
+    setter(chip.dataset.count || chip.dataset.order);
+  });
+}
+setupChips("countChips", v => chosenCount = v);
+setupChips("orderChips", v => chosenOrder = v);
+
+// 바구니를 뒤섞는 함수 (피셔-예이츠)
+function shuffle(list) {
+  const copy = list.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function startQuiz() {
+  let pool = chosenOrder === "random" ? shuffle(QUESTIONS) : QUESTIONS.slice();
+  if (chosenCount !== "all") {
+    pool = pool.slice(0, Number(chosenCount));
+  }
+  current = pool;
+  index = 0;
+  score = 0;
+  wrongList = [];
+  startEl.classList.add("hidden");
+  resultEl.classList.add("hidden");
+  quizEl.classList.remove("hidden");
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = current[index];
+
+  document.getElementById("counter").textContent = (index + 1) + " / " + current.length;
+  document.getElementById("runningScore").textContent = "점수 " + score;
+  document.getElementById("progressBar").style.width = ((index) / current.length * 100) + "%";
+  document.getElementById("qnum").textContent = "원본 " + q.n + "번";
+
+  // ____ 자리를 밑줄 빈칸으로 바꿔서 보여줌
+  const promptEl = document.getElementById("prompt");
+  promptEl.innerHTML = escapeHtml(q.p).replace("____", '<span class="blank"></span>');
+
+  // 보기 버튼 만들기. 순서도 섞어줌
+  const optionsEl = document.getElementById("options");
+  optionsEl.innerHTML = "";
+  const shownOptions = shuffle(q.o);
+  shownOptions.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "opt";
+    btn.innerHTML = '<span>' + escapeHtml(opt) + '</span>';
+    btn.addEventListener("click", () => pick(opt, q));
+    optionsEl.appendChild(btn);
+  });
+
+  // 피드백 영역 숨기기
+  document.getElementById("feedback").classList.add("hidden");
+  document.getElementById("note").classList.add("hidden");
+  document.getElementById("nextWrap").classList.add("hidden");
+}
+
+function pick(chosen, q) {
+  const isRight = q.a.includes(chosen);
+  if (isRight) score++;
+  else wrongList.push({ q: q, mine: chosen });
+
+  // 버튼 잠그고 정답/오답 색칠
+  const buttons = document.querySelectorAll("#options .opt");
+  buttons.forEach(btn => {
+    const label = btn.querySelector("span").textContent;
+    btn.disabled = true;
+    if (q.a.includes(label)) {
+      btn.classList.add("correct");
+      btn.insertAdjacentHTML("beforeend", '<span class="mark">정답</span>');
+    }
+    if (label === chosen && !isRight) {
+      btn.classList.add("wrong");
+      btn.insertAdjacentHTML("beforeend", '<span class="mark">내 선택</span>');
+    }
+  });
+
+  // 판정 문구
+  const verdict = document.getElementById("verdict");
+  verdict.textContent = isRight ? "정답" : "오답 - 정답은 " + q.a.join(", ");
+  verdict.className = "verdict " + (isRight ? "ok" : "no");
+
+  // 설명 있으면 보여주기
+  const noteEl = document.getElementById("note");
+  if (q.note) {
+    noteEl.textContent = q.note;
+    noteEl.classList.remove("hidden");
+  }
+
+  document.getElementById("feedback").classList.remove("hidden");
+  document.getElementById("runningScore").textContent = "점수 " + score;
+
+  const nextBtn = document.getElementById("nextBtn");
+  nextBtn.textContent = (index + 1 === current.length) ? "결과 보기" : "다음";
+  document.getElementById("nextWrap").classList.remove("hidden");
+  nextBtn.focus();
+}
+
+function next() {
+  index++;
+  if (index >= current.length) showResult();
+  else renderQuestion();
+}
+
+function showResult() {
+  quizEl.classList.add("hidden");
+  resultEl.classList.remove("hidden");
+
+  const total = current.length;
+  const pct = Math.round(score / total * 100);
+  document.getElementById("finalScore").textContent = score + " / " + total;
+  document.getElementById("finalPct").textContent = "정답률 " + pct + "%";
+
+  const area = document.getElementById("reviewArea");
+  area.innerHTML = "";
+  if (wrongList.length === 0) {
+    area.innerHTML = '<div class="allright">다 맞았어. 완벽해.</div>';
+    return;
+  }
+  const title = document.createElement("div");
+  title.className = "review-title";
+  title.textContent = "틀린 문제 " + wrongList.length + "개 다시 보기";
+  area.appendChild(title);
+
+  wrongList.forEach(item => {
+    const q = item.q;
+    const div = document.createElement("div");
+    div.className = "review-item";
+    const sentence = escapeHtml(q.p).replace("____", "(&nbsp;&nbsp;&nbsp;&nbsp;)");
+    let html = '<div class="rq">' + q.n + "번. " + sentence + "</div>";
+    html += '<div class="ra mine">내 선택: ' + escapeHtml(item.mine) + "</div>";
+    html += '<div class="ra ans">정답: ' + escapeHtml(q.a.join(", ")) + "</div>";
+    if (q.note) html += '<div class="rnote">' + escapeHtml(q.note) + "</div>";
+    div.innerHTML = html;
+    area.appendChild(div);
+  });
+}
+
+// < 같은 글자가 그대로 보이게 처리
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+document.getElementById("startBtn").addEventListener("click", startQuiz);
+document.getElementById("nextBtn").addEventListener("click", next);
+document.getElementById("againBtn").addEventListener("click", startQuiz);
+document.getElementById("homeBtn").addEventListener("click", () => {
+  resultEl.classList.add("hidden");
+  startEl.classList.remove("hidden");
+});
+</script>
+</body>
+</html>
