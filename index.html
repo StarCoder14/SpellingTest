@@ -118,6 +118,35 @@
   .btn-row { display: flex; gap: 12px; margin-top: 24px; }
   .btn-row .btn { flex: 1; }
   .backlink { display: inline-block; margin-top: 16px; color: var(--muted); font-size: 0.9rem; background: none; border: none; cursor: pointer; }
+  .quitbtn { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: 5px 12px; font-size: 0.82rem; cursor: pointer; transition: 0.15s; }
+  .quitbtn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* 인트로 스플래시 */
+  #intro { position: fixed; inset: 0; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; background: radial-gradient(60% 60% at 50% 45%, #141a2b 0%, #090b12 60%, #05060a 100%); overflow: hidden; transition: opacity 0.7s ease; }
+  #intro.fade { opacity: 0; }
+  #intro::before, #intro::after { content: ""; position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.5; pointer-events: none; }
+  #intro::before { width: 60vw; height: 60vw; background: radial-gradient(circle, #2a3b6b, transparent 70%); top: -10%; left: -10%; animation: fog 12s ease-in-out infinite alternate; }
+  #intro::after { width: 55vw; height: 55vw; background: radial-gradient(circle, #3a2a5b, transparent 70%); bottom: -10%; right: -10%; animation: fog 15s ease-in-out infinite alternate-reverse; }
+  @keyframes fog { from { transform: translate(0, 0); } to { transform: translate(6%, 4%); } }
+  .intro-stage { position: relative; width: min(78vw, 360px); aspect-ratio: 1; display: grid; place-items: center; animation: stage-in 1s ease both; }
+  .intro-stage > * { grid-area: 1 / 1; }
+  @keyframes stage-in { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+  .geo { width: 100%; height: 100%; }
+  .geo-ring { fill: none; stroke: rgba(120, 160, 255, 0.18); stroke-width: 0.6; }
+  .geo-poly { fill: none; stroke: rgba(130, 165, 255, 0.35); stroke-width: 0.7; transform-origin: 100px 100px; }
+  .p1 { animation: spin 24s linear infinite; }
+  .p2 { animation: spin 18s linear infinite reverse; opacity: 0.6; }
+  .p3 { stroke: rgba(255, 120, 140, 0.4); animation: spin 30s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ring-text { position: absolute; width: 120%; height: 120%; animation: spin 40s linear infinite; }
+  .ring-text text { fill: rgba(160, 185, 255, 0.6); font-size: 11px; letter-spacing: 2px; font-weight: 600; }
+  .semicolon { font-family: Georgia, "Times New Roman", serif; font-size: clamp(70px, 20vw, 140px); font-weight: 700; line-height: 1; color: #dfe7ff; text-shadow: 0 0 18px rgba(90, 140, 255, 0.9), 0 0 46px rgba(90, 140, 255, 0.55); animation: sc-pop 1.1s cubic-bezier(0.2, 0.9, 0.3, 1.2) both 0.2s; }
+  @keyframes sc-pop { 0% { opacity: 0; transform: translateY(8px) scale(0.7); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+  .intro-hint { color: rgba(200, 210, 230, 0.5); font-size: 0.85rem; letter-spacing: 1px; animation: hint 1.8s ease-in-out infinite 1.2s; opacity: 0; animation-fill-mode: both; }
+  @keyframes hint { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.7; } }
+  @media (prefers-reduced-motion: reduce) {
+    .intro-stage, .semicolon, .p1, .p2, .p3, .ring-text, #intro::before, #intro::after, .intro-hint { animation: none; }
+  }
   .hidden { display: none; }
 </style>
 </head>
@@ -125,6 +154,27 @@
 <div class="wrap">
   <h1>국어 맞춤법·한자성어 퀴즈</h1>
   <p class="sub">운정고 1학년 국어 수행 학습지로 만든 연습 퀴즈</p>
+
+  <!-- 인트로 스플래시 -->
+  <div id="intro">
+    <div class="intro-stage">
+      <svg class="geo" viewBox="0 0 200 200" aria-hidden="true">
+        <circle class="geo-ring" cx="100" cy="100" r="82"/>
+        <circle class="geo-ring" cx="100" cy="100" r="60"/>
+        <polygon class="geo-poly p1" points="100,30 154.7,56.4 168.2,115.6 130.4,163 69.6,163 31.8,115.6 45.3,56.4"/>
+        <polygon class="geo-poly p2" points="100,30 154.7,56.4 168.2,115.6 130.4,163 69.6,163 31.8,115.6 45.3,56.4"/>
+        <polygon class="geo-poly p3" points="100,45 138,62 147,104 121,138 79,138 53,104 62,62"/>
+      </svg>
+      <svg class="ring-text" viewBox="0 0 200 200" aria-hidden="true">
+        <defs>
+          <path id="introCircle" d="M100,100 m-80,0 a80,80 0 1,1 160,0 a80,80 0 1,1 -160,0"/>
+        </defs>
+        <text><textPath href="#introCircle" startOffset="0">· 국어 맞춤법 · 한자성어 · 국어 맞춤법 · 한자성어 · 국어 맞춤법 · 한자성어 </textPath></text>
+      </svg>
+      <div class="semicolon">;</div>
+    </div>
+    <div class="intro-hint">화면을 누르면 건너뛰기</div>
+  </div>
 
   <!-- 메뉴 -->
   <section id="home" class="card">
@@ -168,6 +218,7 @@
   <!-- 맞춤법 퀴즈 -->
   <section id="quiz" class="hidden">
     <div class="topbar">
+      <button class="quitbtn">그만두기</button>
       <span class="count" id="counter"></span>
       <span class="score" id="runningScore"></span>
     </div>
@@ -189,6 +240,7 @@
   <!-- 한자성어 퀴즈 -->
   <section id="idiom" class="hidden">
     <div class="topbar">
+      <button class="quitbtn">그만두기</button>
       <span class="count" id="iCounter"></span>
       <span class="score" id="iScore"></span>
     </div>
@@ -744,6 +796,27 @@ document.getElementById("iSkip").addEventListener("click", skipIdiom);
 document.getElementById("iInput").addEventListener("keydown", (e) => { if (e.key === "Enter") submitIdiom(); });
 document.getElementById("againBtn").addEventListener("click", startQuiz);
 document.getElementById("homeBtn").addEventListener("click", () => show(homeEl));
+
+// 퀴즈 중간에 그만두고 메뉴로
+document.querySelectorAll(".quitbtn").forEach(b => b.addEventListener("click", () => show(homeEl)));
+
+// 인트로 스플래시: 잠깐 보여주고 메뉴로 넘어감. 아무 데나 누르면 바로 건너뜀
+(function () {
+  const intro = document.getElementById("intro");
+  function endIntro() {
+    if (!intro || intro.dataset.done) return;
+    intro.dataset.done = "1";
+    intro.classList.add("fade");
+    setTimeout(() => { intro.style.display = "none"; }, 700);
+  }
+  // 움직임 최소화를 켠 사람에겐 애니메이션 없이 바로 메뉴
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    intro.style.display = "none";
+  } else {
+    intro.addEventListener("click", endIntro);
+    setTimeout(endIntro, 3000);
+  }
+})();
 </script>
 </body>
 </html>
